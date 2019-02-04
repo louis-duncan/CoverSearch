@@ -1,2 +1,2 @@
 
-Copyright (C) 2019 
+Copyright (C) Louis Thurman 2019 
