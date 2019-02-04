@@ -1,7 +1,9 @@
+import os
+
 HEAD_TEXT = """<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
 <Folder>
-\t<name>OpenArchive Pins</name>
+\t<name>file-name-here</name>
 """
 
 TAIL_TEXT = """</Folder>
@@ -40,10 +42,10 @@ class Point:
 
     def gen_kml_text(self):
         base = POINT_TEMPLATE
-        base.replace("name-here", self._name)
-        base.replace("description-here", self._text)
-        base.replace("lon-here", str(round(self._lon, 10)))
-        base.replace("lat-here", str(round(self._lat, 10)))
+        base = base.replace("name-here", self._name)
+        base = base.replace("description-here", self._text)
+        base = base.replace("lon-here", str(round(self._lon, 10)))
+        base = base.replace("lat-here", str(round(self._lat, 10)))
         return base
 
     def get_name(self):
@@ -64,8 +66,17 @@ class Creator:
         if not output_path.upper().endswith("KML"):
             output_path += ".kml"
 
-            self._output_path = output_path
-            self._points = []
+        self._output_path = output_path
+        self._points = []
+
+    def get_num_points(self):
+        return len(self._points)
+
+    def set_output_path(self, new_path):
+        self._output_path = new_path
+
+    def get_output_path(self):
+        return self._output_path
 
     def feed_points(self, points):
         if type(points) in (tuple, list):
@@ -83,8 +94,11 @@ class Creator:
         if output_path == "DEFAULT":
             output_path = self._output_path
 
+        if not os.path.exists(os.path.dirname(output_path)):
+            os.mkdir(os.path.dirname(output_path))
+
         with open(output_path, "w") as fh:
-            fh.write(HEAD_TEXT)
+            fh.write(HEAD_TEXT.replace("file-name-here", os.path.basename(output_path).replace(".kml", "")))
             for p in self._points:
                 fh.write(p.gen_kml_text())
             fh.write(TAIL_TEXT)
